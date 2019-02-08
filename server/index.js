@@ -36,6 +36,13 @@ const server = new WebSocket.Server({ port:8080 });
 // Make sure all clients are still around
 
 // Define what happens when a client connects
+server.on("connection", (client,  req) => {
+  const {
+    query: { id }
+  } = url.parse(req.url, true);
+
+  addClient(client, id);
+});
 
 // Define what happens when a message is sent from a client
 function onClientMessage(message) {
@@ -51,9 +58,21 @@ function onClientMessage(message) {
 }
 
 function addClient(client, connectionId) {
-  // Generate a unique ID, or use the one supplied
-  // Listen for messages and pong responses
-  // Provide the new client with the current feedback
+  const id = connectionId ? connectionId : uuid();
+  client.id = id;
+
+  client.on('message', onClientMessage);
+
+  client.send(
+    JSON.stringify({
+      action: CONSTANTS.INITIAL_STATE,
+      payload: {
+        id,
+        username: users[id],
+        feedback: feedback.map(f => ({ ...f, username: users[f.clientId] }))
+      }
+    })
+  );
 }
 
 // Tell all clients about something happening

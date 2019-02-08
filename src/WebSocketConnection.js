@@ -9,16 +9,21 @@ export class WebSocketConnection {
       pathToServer += `?id=${existingId}`;
     }
 
-    this.connection = new Websocket(pathToServer);
+    this.connection = new WebSocket(pathToServer);
     this.connection.onMessage = this.onMessage.bind(this);
     this.messageCallback = messageCallback;
   }
 
-  // What to do when we receive a message from the server
   onMessage(event) {
-    // Convert the JSON string into an object
-    // Set the new ID from the state passed
-    // Pass to React if any other message
+    const data = JSON.parse(event.data);
+
+    if (data.action === CONSTANTS.INITIAL_STATE) {
+      setId(data.payload.id);
+    }
+
+    if (this.messageCallback) {
+      this.messageCallback(data);
+    }
   }
 
   // Send a message to the server

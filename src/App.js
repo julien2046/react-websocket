@@ -48,6 +48,14 @@ class App extends Component {
   // What to do when a message comes from the server
   onMessage(data) {
     switch (data.action) {
+      case CONSTANTS.INITIAL_STATE:
+      this.setState({
+        ready: true,
+        id: data.payload.id,
+        username: data.payload.username,
+        feedback: data.payload.feedback
+      });
+      break;
       default:
         // Do nothing
         break;
